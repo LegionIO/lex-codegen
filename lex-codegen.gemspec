@@ -1,0 +1,37 @@
+# frozen_string_literal: true
+
+require_relative 'lib/legion/extensions/codegen/version'
+
+Gem::Specification.new do |spec|
+  spec.name          = 'lex-codegen'
+  spec.version       = Legion::Extensions::Codegen::VERSION
+  spec.authors       = ['Esity']
+  spec.email         = ['matthewdiverson@gmail.com']
+
+  spec.summary       = 'Legion::Extensions::Codegen'
+  spec.description   = 'Code generation engine for LegionIO extensions'
+  spec.homepage      = 'https://github.com/LegionIO/lex-codegen'
+  spec.license       = 'MIT'
+  spec.required_ruby_version = '>= 3.4'
+
+  spec.metadata['homepage_uri']        = spec.homepage
+  spec.metadata['source_code_uri']     = 'https://github.com/LegionIO/lex-codegen'
+  spec.metadata['changelog_uri']       = 'https://github.com/LegionIO/lex-codegen'
+  spec.metadata['documentation_uri']   = 'https://github.com/LegionIO/lex-codegen'
+  spec.metadata['bug_tracker_uri']     = 'https://github.com/LegionIO/lex-codegen/issues'
+  spec.metadata['rubygems_mfa_required'] = 'true'
+
+  spec.files = Dir.chdir(File.expand_path(__dir__)) do
+    `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+  end
+  spec.require_paths = ['lib']
+
+  spec.add_dependency 'erb'
+
+  spec.add_development_dependency 'rake'
+  spec.add_development_dependency 'rspec', '~> 3.13'
+  spec.add_development_dependency 'rspec_junit_formatter'
+  spec.add_development_dependency 'rubocop', '~> 1.75'
+  spec.add_development_dependency 'rubocop-rspec'
+  spec.add_development_dependency 'simplecov'
+end
