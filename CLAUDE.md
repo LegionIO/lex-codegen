@@ -200,8 +200,8 @@ Class. Initialized with `base_path:`.
 
 ```bash
 bundle install
-bundle exec rspec
-bundle exec rubocop
+bundle exec rspec     # 82 examples, 0 failures
+bundle exec rubocop   # 0 offenses
 ```
 
 ---
