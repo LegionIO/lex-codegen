@@ -10,7 +10,7 @@ Legion Extension that provides code generation for LegionIO extensions. Scaffold
 
 **GitHub**: https://github.com/LegionIO/lex-codegen
 **License**: MIT
-**Version**: 0.1.0
+**Version**: 0.1.3
 
 ## Architecture
 
@@ -36,7 +36,7 @@ No explicit actors directory. The framework auto-generates subscription actors f
 |-------|-------|
 | Gem name | `lex-codegen` |
 | Module | `Legion::Extensions::Codegen` |
-| Version | `0.1.0` |
+| Version | `0.1.3` |
 | Ruby | `>= 3.4` |
 | Runtime dep | `erb` (stdlib, declared explicitly) |
 

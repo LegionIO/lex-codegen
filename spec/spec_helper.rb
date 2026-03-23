@@ -1,19 +1,29 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
+require 'legion/logging'
+require 'legion/json'
+require 'legion/cache'
+require 'legion/crypt'
+require 'legion/data'
+require 'legion/settings'
+require 'legion/transport'
 require 'legion/extensions/codegen'
 
-# Stub Legion::Logging when running standalone
-unless defined?(Legion::Logging)
+# Stub Legion::Extensions::Helpers::Lex when running standalone
+unless defined?(Legion::Extensions::Helpers::Lex)
   module Legion
-    module Logging
-      def self.info(*); end
+    module Extensions
+      module Helpers
+        module Lex
+          def self.included(base)
+            base.extend(ClassMethods)
+          end
 
-      def self.debug(*); end
-
-      def self.warn(*); end
-
-      def self.error(*); end
+          module ClassMethods
+          end
+        end
+      end
     end
   end
 end

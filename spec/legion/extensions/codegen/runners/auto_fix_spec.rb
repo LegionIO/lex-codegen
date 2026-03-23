@@ -34,6 +34,8 @@ RSpec.describe Legion::Extensions::Codegen::Runners::AutoFix do
 
   describe '#approve_fix' do
     context 'when Legion::Data::Local is not available' do
+      before { hide_const('Legion::Data::Local') }
+
       it 'returns data_unavailable' do
         result = described_class.approve_fix(fix_id: 'abc')
         expect(result[:success]).to be false
@@ -44,6 +46,8 @@ RSpec.describe Legion::Extensions::Codegen::Runners::AutoFix do
 
   describe '#reject_fix' do
     context 'when Legion::Data::Local is not available' do
+      before { hide_const('Legion::Data::Local') }
+
       it 'returns data_unavailable' do
         result = described_class.reject_fix(fix_id: 'abc')
         expect(result[:success]).to be false
@@ -54,6 +58,8 @@ RSpec.describe Legion::Extensions::Codegen::Runners::AutoFix do
 
   describe '#list_fixes' do
     context 'when Legion::Data::Local is not available' do
+      before { hide_const('Legion::Data::Local') }
+
       it 'returns empty list' do
         result = described_class.list_fixes
         expect(result[:fixes]).to eq([])
