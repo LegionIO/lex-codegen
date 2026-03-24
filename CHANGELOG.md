@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.4] - 2026-03-23
+
+### Changed
+- `AutoFix#auto_fix` passes `caller: { extension: 'lex-codegen', operation: 'auto_fix' }` and `intent: { capability: :reasoning }` to `Legion::LLM.chat` for attribution and model routing
+
 ## [0.1.3] - 2026-03-22
 
 ### Changed

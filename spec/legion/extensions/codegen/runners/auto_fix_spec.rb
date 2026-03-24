@@ -15,6 +15,46 @@ RSpec.describe Legion::Extensions::Codegen::Runners::AutoFix do
       end
     end
 
+    context 'when caller identity is passed to Legion::LLM.chat' do
+      let(:fake_spec) { double('Gem::Specification', gem_dir: '/fake/gem/dir') }
+      let(:expected_source_path) { '/fake/gem/dir/lib/legion/extensions/fakerunner.rb' }
+
+      before do
+        llm_spy = Module.new do
+          @last_kwargs = nil
+          def self.chat(**kwargs)
+            @last_kwargs = kwargs
+            { content: '' }
+          end
+
+          class << self
+            attr_reader :last_kwargs
+          end
+        end
+        stub_const('Legion::LLM', llm_spy)
+        allow(Gem::Specification).to receive(:find_by_name).and_return(fake_spec)
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(expected_source_path).and_return(true)
+        allow(File).to receive(:read).with(expected_source_path).and_return('def foo; end')
+      end
+
+      it 'passes caller identity to Legion::LLM.chat' do
+        described_class.auto_fix(
+          gem_name: 'lex-test', runner_class: 'FakeRunner',
+          error_class: 'NoMethodError', backtraces: ['file.rb:10']
+        )
+        expect(Legion::LLM.last_kwargs[:caller]).to eq({ extension: 'lex-codegen', operation: 'auto_fix' })
+      end
+
+      it 'passes reasoning intent to Legion::LLM.chat' do
+        described_class.auto_fix(
+          gem_name: 'lex-test', runner_class: 'FakeRunner',
+          error_class: 'NoMethodError', backtraces: ['file.rb:10']
+        )
+        expect(Legion::LLM.last_kwargs[:intent]).to eq({ capability: :reasoning })
+      end
+    end
+
     context 'when gem is not found' do
       before do
         stub_const('Legion::LLM', Module.new { def self.chat(**) = { content: 'no patch' } })

@@ -24,7 +24,11 @@ module Legion
 
             source = ::File.read(source_file)
             prompt = build_fix_prompt(source, error_class, backtraces)
-            fix_response = Legion::LLM.chat(messages: [{ role: 'user', content: prompt }])
+            fix_response = Legion::LLM.chat(
+              messages: [{ role: 'user', content: prompt }],
+              caller:   { extension: 'lex-codegen', operation: 'auto_fix' },
+              intent:   { capability: :reasoning }
+            )
 
             patch = extract_patch(fix_response)
             return { success: false, reason: :no_patch_generated } unless patch
