@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.5] - 2026-03-26
+
+### Added
+- `Helpers::GeneratedRegistry` — in-memory (and optional `Legion::Data::Local` SQLite) registry for tracking generated functions: `persist`, `list`, `get`, `update_status`, `record_usage`, `load_on_boot`, `reset!`
+- `local_migrations/20260326000001_create_generated_functions.rb` — Sequel migration for the `generated_functions` table with status/gap/tier/confidence/usage columns
+
 ## [0.1.4] - 2026-03-23
 
 ### Changed
