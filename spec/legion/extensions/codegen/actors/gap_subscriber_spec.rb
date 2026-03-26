@@ -30,7 +30,8 @@ RSpec.describe Legion::Extensions::Codegen::Actor::GapSubscriber do
     it 'publishes code review request on success' do
       allow(Legion::Extensions::Codegen::Runners::FromGap).to receive(:generate).and_return({ success: true, generation_id: 'gen_001' })
       msg_double = instance_double(Legion::Extensions::Codegen::Transport::Messages::CodeReviewRequested, publish: true)
-      expect(Legion::Extensions::Codegen::Transport::Messages::CodeReviewRequested).to receive(:new).with(generation: hash_including(success: true)).and_return(msg_double)
+      expect(Legion::Extensions::Codegen::Transport::Messages::CodeReviewRequested)
+        .to receive(:new).with(generation: hash_including(success: true)).and_return(msg_double)
       actor_instance.action(payload)
     end
 
@@ -91,7 +92,7 @@ RSpec.describe Legion::Extensions::Codegen::Actor::GapSubscriber do
       it 'ingests the gap into Apollo' do
         expect(Legion::Apollo).to receive(:ingest).with(
           content: 'capability_gap: greet user (type: unmatched_intent)',
-          tags:    [:capability_gap, :unmatched_intent, :self_generate],
+          tags:    %i[capability_gap unmatched_intent self_generate],
           scope:   :global,
           source:  { provider: 'test-node', channel: 'gap_detector' }
         )
@@ -137,6 +138,7 @@ RSpec.describe Legion::Extensions::Codegen::Actor::GapSubscriber do
       it 'counts unique providers only' do
         dup_apollo = Module.new do
           def self.ingest(**) = { success: true }
+
           def self.retrieve(**)
             { results: [{ source: { provider: 'same-node' } }, { source: { provider: 'same-node' } }, { source: { provider: 'other' } }] }
           end

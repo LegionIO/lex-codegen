@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1] - 2026-03-26
+
+### Changed
+- `Actor::GapSubscriber` now enforces `corroboration.min_agents` threshold before boosting gap priority (default 2)
+
+### Added
+- Expanded Apollo corroboration test coverage: boost values, cap at 1.0, unique provider counting, and edge cases (17 specs)
+
 ## [0.2.0] - 2026-03-26
 
 ### Added
