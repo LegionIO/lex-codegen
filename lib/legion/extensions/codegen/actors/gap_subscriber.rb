@@ -9,6 +9,11 @@ module Legion
 
           def action(payload)
             gap = normalize_gap(payload)
+
+            ingest_gap_to_apollo(gap)
+            corroboration_count = query_corroboration(gap)
+            gap = boost_priority(gap, corroboration_count) if corroboration_count.positive?
+
             result = Runners::FromGap.generate(gap: gap)
 
             Transport::Messages::CodeReviewRequested.new(generation: result).publish if result[:success] && defined?(Transport::Messages::CodeReviewRequested)
@@ -30,6 +35,66 @@ module Legion
               priority:         payload[:priority] || 0.5,
               metadata:         payload[:metadata] || {}
             }
+          end
+
+          def ingest_gap_to_apollo(gap)
+            return unless defined?(Legion::Apollo) && corroboration_enabled?
+
+            Legion::Apollo.ingest(
+              content: "capability_gap: #{gap[:intent]} (type: #{gap[:type]})",
+              tags:    [:capability_gap, gap[:type], :self_generate],
+              scope:   :global,
+              source:  { provider: node_name, channel: 'gap_detector' }
+            )
+          rescue StandardError => e
+            Legion::Logging.debug("GapSubscriber: Apollo ingest failed: #{e.message}") if defined?(Legion::Logging)
+          end
+
+          def query_corroboration(gap)
+            return 0 unless defined?(Legion::Apollo) && corroboration_enabled? && query_before_generate?
+
+            result = Legion::Apollo.retrieve(
+              query: "capability_gap: #{gap[:intent]}",
+              scope: :global,
+              limit: 10
+            )
+
+            results = result[:results] || []
+            results.map { |r| r.dig(:source, :provider) }.compact.uniq.size
+          rescue StandardError => e
+            Legion::Logging.debug("GapSubscriber: Apollo query failed: #{e.message}") if defined?(Legion::Logging)
+            0
+          end
+
+          def boost_priority(gap, corroboration_count)
+            return gap if corroboration_count.zero?
+
+            boost = priority_boost_per_agent * corroboration_count
+            gap.merge(priority: [gap[:priority] + boost, 1.0].min)
+          end
+
+          def corroboration_enabled?
+            return false unless defined?(Legion::Settings)
+
+            Legion::Settings.dig(:codegen, :self_generate, :corroboration, :enabled) == true
+          end
+
+          def query_before_generate?
+            return true unless defined?(Legion::Settings)
+
+            Legion::Settings.dig(:codegen, :self_generate, :corroboration, :apollo_query_before_generate) != false
+          end
+
+          def priority_boost_per_agent
+            if defined?(Legion::Settings)
+              Legion::Settings.dig(:codegen, :self_generate, :corroboration, :priority_boost_per_agent) || 0.15
+            else
+              0.15
+            end
+          end
+
+          def node_name
+            defined?(Legion::Settings) ? (Legion::Settings.dig(:node, :name) || 'unknown') : 'unknown'
           end
         end
       end
