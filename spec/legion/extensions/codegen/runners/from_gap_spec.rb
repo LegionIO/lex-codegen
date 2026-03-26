@@ -24,8 +24,8 @@ RSpec.describe Legion::Extensions::Codegen::Runners::FromGap do
 
     it 'returns generation metadata on success' do
       allow(described_class).to receive(:generate_runner_method).and_return({
-        success: true, generation_id: 'gen_001', file_path: '/tmp/test.rb'
-      })
+                                                                              success: true, generation_id: 'gen_001', file_path: '/tmp/test.rb'
+                                                                            })
       result = described_class.generate(gap: simple_gap)
       expect(result[:success]).to be true
     end
@@ -62,10 +62,10 @@ RSpec.describe Legion::Extensions::Codegen::Runners::FromGap do
       end
 
       before do
-        stub_const('Legion::LLM', Module.new {
+        stub_const('Legion::LLM', Module.new do
           def self.chat(**) = nil
-          def self.respond_to?(m, *) = m == :chat ? true : super
-        })
+          def self.respond_to?(mth, *) = mth == :chat ? true : super
+        end)
         allow(Legion::LLM).to receive(:chat).and_return(llm_response)
       end
 
@@ -82,9 +82,9 @@ RSpec.describe Legion::Extensions::Codegen::Runners::FromGap do
 
     context 'when Generate runner is available' do
       it 'delegates to scaffold_extension' do
-        expect(Legion::Extensions::Codegen::Runners::Generate).to receive(:scaffold_extension).and_return({
-          success: true, path: '/tmp/lex-deploy', files_created: 10
-        })
+        expect(Legion::Extensions::Codegen::Runners::Generate).to receive(:scaffold_extension).and_return(
+          { success: true, path: '/tmp/lex-deploy', files_created: 10 }
+        )
         result = described_class.generate_full_extension(gap: gap)
         expect(result[:success]).to be true
       end

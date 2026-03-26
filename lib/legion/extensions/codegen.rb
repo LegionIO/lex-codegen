@@ -16,6 +16,17 @@ require_relative 'codegen/runners/from_gap'
 require_relative 'codegen/runners/review_handler'
 require_relative 'codegen/client'
 
+if defined?(Legion::Transport::Exchange)
+  require_relative 'codegen/transport/exchanges/codegen'
+  require_relative 'codegen/transport/queues/gap_detected'
+  require_relative 'codegen/transport/queues/review_completed'
+  require_relative 'codegen/transport/messages/gap_detected'
+  require_relative 'codegen/transport/messages/code_review_requested'
+end
+
+require_relative 'codegen/actors/gap_subscriber'
+require_relative 'codegen/actors/review_subscriber'
+
 module Legion
   module Extensions
     module Codegen
