@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.0] - 2026-03-26
+
+### Added
+- `Helpers::TierClassifier` for gap complexity classification (simple vs complex) based on occurrence count thresholds
+- `Helpers::GeneratedRegistry` with `Legion::Data::Local` persistence for tracking generated functions with status, tier, confidence, and usage metrics
+- `Runners::FromGap` with tiered code generation: routes simple gaps to runner method generation and complex gaps to full extension scaffolding via `Runners::Generate`
+- `Runners::ReviewHandler` for validation verdict processing: approve, reject, retry (with max-retry guard), and park actions against `GeneratedRegistry`
+- `Actor::GapSubscriber` AMQP subscription actor with Apollo corroboration for gap priority boosting before generation
+- `Actor::ReviewSubscriber` AMQP subscription actor for routing review verdicts to `ReviewHandler`
+- Transport layer: `Exchanges::Codegen`, `Queues::GapQueue`, `Queues::ReviewQueue`, `Messages::GenerateFromGap`, `Messages::ReviewResult`
+- `Legion::Data::Local` migration for `generated_functions` table with status, gap, tier, confidence, attempt count, and usage columns
+
 ## [0.1.5] - 2026-03-26
 
 ### Added

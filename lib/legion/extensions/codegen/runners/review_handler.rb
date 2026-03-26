@@ -54,9 +54,7 @@ module Legion
                             2
                           end
 
-            if (record[:attempt_count] || 0) >= max_retries
-              return park(record, 'max_retries_exceeded', review[:issues])
-            end
+            return park(record, 'max_retries_exceeded', review[:issues]) if (record[:attempt_count] || 0) >= max_retries
 
             Helpers::GeneratedRegistry.update_status(id: record[:id], status: 'pending')
             { success: true, action: :retry_queued, generation_id: record[:id], attempt: (record[:attempt_count] || 0) + 1 }

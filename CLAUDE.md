@@ -10,7 +10,7 @@ Legion Extension that provides code generation for LegionIO extensions. Scaffold
 
 **GitHub**: https://github.com/LegionIO/lex-codegen
 **License**: MIT
-**Version**: 0.1.3
+**Version**: 0.1.4
 
 ## Architecture
 
@@ -19,13 +19,14 @@ Legion::Extensions::Codegen
 ├── Runners/
 │   ├── Generate       # Scaffold entire extension trees; generate individual files
 │   ├── Template       # List templates, render a template, inspect required variables
-│   └── Validate       # Check extension directory structure, rubocop config, gemspec fields
+│   ├── Validate       # Check extension directory structure, rubocop config, gemspec fields
+│   └── AutoFix        # LLM-powered automated repair: auto_fix, approve_fix, reject_fix, list_fixes
 ├── Helpers/
 │   ├── Constants      # All ERB template strings + defaults (author, version, ruby, license)
 │   ├── TemplateEngine # ERB renderer; isolates each render into a fresh binding
 │   ├── SpecGenerator  # Builds RSpec source strings for runners, clients, helpers
 │   └── FileWriter     # Writes rendered content to disk, creates directories as needed
-└── Client             # Thin wrapper; includes all three runner modules
+└── Client             # Thin wrapper; includes all four runner modules
 ```
 
 No explicit actors directory. The framework auto-generates subscription actors for each runner.
@@ -36,7 +37,7 @@ No explicit actors directory. The framework auto-generates subscription actors f
 |-------|-------|
 | Gem name | `lex-codegen` |
 | Module | `Legion::Extensions::Codegen` |
-| Version | `0.1.3` |
+| Version | `0.1.4` |
 | Ruby | `>= 3.4` |
 | Runtime dep | `erb` (stdlib, declared explicitly) |
 
@@ -183,6 +184,22 @@ Class. Initialized with `base_path:`.
 - Accepts a hash of `{ relative_path => content }` and calls `write` for each
 - Returns array of `{ path:, bytes: }` results
 
+### AutoFix (`Runners::AutoFix`)
+
+`extend self` — all methods callable on the module directly.
+
+**`auto_fix(gem_name:, runner_class:, error_class:, backtraces:, **)`**
+- Requires `legion-llm` to be available. Locates source file for `runner_class` in the named gem, builds a repair prompt, calls `Legion::LLM.chat` with `caller: { extension: 'lex-codegen', operation: 'auto_fix' }` and `intent: { capability: :reasoning }`.
+- Extracts a unified diff patch from the LLM response, applies it in a new git branch (`fix/<gem>-<timestamp>`), runs `bundle exec rspec`.
+- Saves result to `codegen_fixes` table via `Legion::Data::Local` (if available).
+- Returns `{ success:, fix_id:, branch:, specs_passed: }`.
+
+**`approve_fix(fix_id:)` / `reject_fix(fix_id:)`** — update fix status in `codegen_fixes` table.
+
+**`list_fixes(status: nil)`** — returns last 50 fixes, optionally filtered by status.
+
+The `codegen_fixes` local migration (`local_migrations/20260320000001_create_codegen_fixes.rb`) creates the table with columns: `fix_id`, `gem_name`, `runner_class`, `branch`, `patch`, `status`, `specs_passed`, `spec_output`, `created_at`.
+
 ## Integration Points
 
 - **`legion lex create`** CLI command calls `scaffold_extension` to bootstrap new extension repos
@@ -200,7 +217,7 @@ Class. Initialized with `base_path:`.
 
 ```bash
 bundle install
-bundle exec rspec     # 82 examples, 0 failures
+bundle exec rspec     # 82+ examples, 0 failures
 bundle exec rubocop   # 0 offenses
 ```
 
