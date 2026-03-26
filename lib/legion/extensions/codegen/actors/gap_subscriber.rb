@@ -12,7 +12,7 @@ module Legion
 
             ingest_gap_to_apollo(gap)
             corroboration_count = query_corroboration(gap)
-            gap = boost_priority(gap, corroboration_count) if corroboration_count.positive?
+            gap = boost_priority(gap, corroboration_count) if corroboration_count >= min_agents
 
             result = Runners::FromGap.generate(gap: gap)
 
@@ -83,6 +83,14 @@ module Legion
             return true unless defined?(Legion::Settings)
 
             Legion::Settings.dig(:codegen, :self_generate, :corroboration, :apollo_query_before_generate) != false
+          end
+
+          def min_agents
+            if defined?(Legion::Settings)
+              Legion::Settings.dig(:codegen, :self_generate, :corroboration, :min_agents) || 2
+            else
+              2
+            end
           end
 
           def priority_boost_per_agent
