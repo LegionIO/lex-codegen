@@ -134,7 +134,8 @@ module Legion
 
             begin
               allowed_root = ::File.realpath(output_dir)
-            rescue Errno::ENOENT, Errno::EACCES
+            rescue Errno::ENOENT, Errno::EACCES => e
+              log.debug("realpath fallback for output_dir: #{e.message}")
               allowed_root = ::File.expand_path(output_dir)
             end
 
@@ -143,7 +144,8 @@ module Legion
               return false if ::File.lstat(file_path).symlink?
 
               resolved = ::File.realpath(file_path)
-            rescue Errno::ENOENT, Errno::EACCES
+            rescue Errno::ENOENT, Errno::EACCES => e
+              log.debug("path resolution failed for #{file_path}: #{e.message}")
               return false
             end
 
