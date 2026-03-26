@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.2.4] - 2026-03-26
+
+### Security
+- `implement_stub`: added `allowed_stub_path?` guard to constrain `file_path` to the configured output directory, reducing the risk of unintended LLM access to local files
+
+## [0.2.3] - 2026-03-26
+
+### Fixed
+- `STUB_IMPLEMENTATION_INSTRUCTIONS`: clarified no-comments rule to explicitly exempt existing comments including `# frozen_string_literal: true`, preventing LLM from inadvertently stripping the frozen-string header
+- `extract_code`: updated all four fence-matching regexes to use `\r?\n` instead of `\n`, correctly handling Windows (`\r\n`) line endings in LLM responses
+
+## [0.2.2] - 2026-03-26
+
+### Added
+- `Runners::FromGap.implement_stub` — takes a stub file path and proposal context, calls LLM to fill in the implementation, returns generated code without writing to disk
+- `STUB_IMPLEMENTATION_INSTRUCTIONS` constant with coding rules for LLM code generation
+- Private helpers: `stub_implementation_prompt`, `extract_code` (markdown fence extraction)
+
 ## [0.2.1] - 2026-03-26
 
 ### Changed
