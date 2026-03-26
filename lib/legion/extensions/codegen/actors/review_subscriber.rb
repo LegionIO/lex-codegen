@@ -18,8 +18,16 @@ module Legion
 
             Runners::ReviewHandler.handle_verdict(review: review)
           rescue StandardError => e
-            Legion::Logging.warn("ReviewSubscriber failed: #{e.message}") if defined?(Legion::Logging)
+            log&.warn("ReviewSubscriber failed: #{e.message}")
             { success: false, error: e.message }
+          end
+
+          private
+
+          def log
+            return unless defined?(Legion::Logging)
+
+            Legion::Logging
           end
         end
       end
