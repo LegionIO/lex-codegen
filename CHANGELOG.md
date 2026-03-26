@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.3] - 2026-03-26
+
+### Fixed
+- `STUB_IMPLEMENTATION_INSTRUCTIONS`: clarified no-comments rule to explicitly exempt existing comments including `# frozen_string_literal: true`, preventing LLM from inadvertently stripping the frozen-string header
+- `extract_code`: updated all four fence-matching regexes to use `\r?\n` instead of `\n`, correctly handling Windows (`\r\n`) line endings in LLM responses
+
 ## [0.2.2] - 2026-03-26
 
 ### Added

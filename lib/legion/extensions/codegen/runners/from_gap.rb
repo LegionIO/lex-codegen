@@ -24,7 +24,7 @@ module Legion
             - Helper classes may use initialize for state setup
             - Follow Ruby style: 2-space indent, snake_case methods
             - Do not add require statements
-            - Do not add comments unless the logic is non-obvious
+            - Do not add new comments unless the logic is non-obvious; keep existing comments (including `# frozen_string_literal: true` on line 1)
           INSTRUCTIONS
 
           def generate(gap:)
@@ -202,10 +202,10 @@ module Legion
           def extract_code(content)
             return nil if content.nil?
 
-            code = if content.match?(/```ruby\s*\n/)
-                     content.match(/```ruby\s*\n(.*?)```/m)&.captures&.first || content
-                   elsif content.match?(/```\s*\n/)
-                     content.match(/```\s*\n(.*?)```/m)&.captures&.first || content
+            code = if content.match?(/```ruby\s*\r?\n/)
+                     content.match(/```ruby\s*\r?\n(.*?)```/m)&.captures&.first || content
+                   elsif content.match?(/```\s*\r?\n/)
+                     content.match(/```\s*\r?\n(.*?)```/m)&.captures&.first || content
                    else
                      content
                    end
