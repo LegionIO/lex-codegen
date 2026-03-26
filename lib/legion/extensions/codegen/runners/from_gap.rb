@@ -8,6 +8,7 @@ module Legion
     module Codegen
       module Runners
         module FromGap
+          include Legion::Logging::Helper
           extend self
 
           STUB_IMPLEMENTATION_INSTRUCTIONS = <<~INSTRUCTIONS
@@ -39,6 +40,7 @@ module Legion
               { success: false, reason: :unknown_tier, tier: tier }
             end
           rescue StandardError => e
+            log.warn("generate failed: #{e.message}")
             { success: false, reason: :generation_error, error: e.message }
           end
 
@@ -72,6 +74,7 @@ module Legion
               spec_code:     spec_code
             }
           rescue StandardError => e
+            log.warn("generate_runner_method failed: #{e.message}")
             { success: false, reason: :generation_failed, error: e.message }
           end
 
@@ -97,6 +100,7 @@ module Legion
               extension:     name
             }
           rescue StandardError => e
+            log.warn("generate_full_extension failed: #{e.message}")
             { success: false, reason: :scaffold_failed, error: e.message }
           end
 
@@ -120,6 +124,7 @@ module Legion
 
             { success: true, code: code, file_path: file_path }
           rescue StandardError => e
+            log.warn("implement_stub failed: #{e.message}")
             { success: false, reason: :generation_error, error: e.message }
           end
 
