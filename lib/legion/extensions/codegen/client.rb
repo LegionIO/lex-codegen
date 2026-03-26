@@ -8,6 +8,7 @@ module Legion
         include Runners::Template
         include Runners::Validate
         include Runners::FromGap
+        include Runners::ReviewHandler
 
         def initialize(base_path: ::Dir.pwd)
           @base_path = base_path

@@ -13,6 +13,7 @@ require_relative 'codegen/runners/template'
 require_relative 'codegen/runners/validate'
 require_relative 'codegen/runners/auto_fix'
 require_relative 'codegen/runners/from_gap'
+require_relative 'codegen/runners/review_handler'
 require_relative 'codegen/client'
 
 module Legion
