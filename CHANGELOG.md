@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2] - 2026-03-26
+
+### Added
+- `Runners::FromGap.implement_stub` — takes a stub file path and proposal context, calls LLM to fill in the implementation, returns generated code without writing to disk
+- `STUB_IMPLEMENTATION_INSTRUCTIONS` constant with coding rules for LLM code generation
+- Private helpers: `stub_implementation_prompt`, `extract_code` (markdown fence extraction)
+
 ## [0.2.1] - 2026-03-26
 
 ### Changed

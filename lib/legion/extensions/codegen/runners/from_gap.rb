@@ -10,6 +10,23 @@ module Legion
         module FromGap
           extend self
 
+          STUB_IMPLEMENTATION_INSTRUCTIONS = <<~INSTRUCTIONS
+            You are a Ruby code generator for LegionIO cognitive extensions.
+            You receive a stub Ruby file and a description of the extension's purpose.
+            Replace stub method bodies with real implementations.
+
+            Rules:
+            - Return ONLY the complete Ruby file content, no markdown fencing, no explanation
+            - Keep the exact module/class/method structure and signatures
+            - Keep `# frozen_string_literal: true` on line 1
+            - Runner methods must return `{ success: true/false, ... }` hashes
+            - Use in-memory state only (instance variables, no database, no external APIs)
+            - Helper classes may use initialize for state setup
+            - Follow Ruby style: 2-space indent, snake_case methods
+            - Do not add require statements
+            - Do not add comments unless the logic is non-obvious
+          INSTRUCTIONS
+
           def generate(gap:)
             tier = Helpers::TierClassifier.classify(gap: gap)
 
@@ -83,6 +100,28 @@ module Legion
             { success: false, reason: :scaffold_failed, error: e.message }
           end
 
+          def implement_stub(file_path:, context:)
+            return { success: false, reason: :llm_unavailable } unless llm_available?
+
+            stub_content = ::File.read(file_path)
+            prompt = stub_implementation_prompt(stub_content, context)
+
+            response = Legion::LLM.chat(
+              messages: [
+                { role: 'system', content: STUB_IMPLEMENTATION_INSTRUCTIONS },
+                { role: 'user', content: prompt }
+              ],
+              caller:   { source: 'lex-codegen', component: 'from_gap', operation: 'implement_stub' }
+            )
+
+            code = extract_code(response&.content)
+            return { success: false, reason: :llm_empty_response } if code.nil? || code.strip.empty?
+
+            { success: true, code: code, file_path: file_path }
+          rescue StandardError => e
+            { success: false, reason: :generation_error, error: e.message }
+          end
+
           private
 
           def llm_available?
@@ -146,6 +185,31 @@ module Legion
 
           def camelize(name)
             name.split('_').map(&:capitalize).join
+          end
+
+          def stub_implementation_prompt(stub_content, context)
+            parts = ['Implement this LegionIO extension file.']
+            parts << "Extension: #{context[:name]}"
+            parts << "Category: #{context[:category]}"
+            parts << "Description: #{context[:description]}"
+            parts << "Metaphor: #{context[:metaphor]}" if context[:metaphor]
+            parts << ''
+            parts << 'Current stub:'
+            parts << stub_content
+            parts.join("\n")
+          end
+
+          def extract_code(content)
+            return nil if content.nil?
+
+            code = if content.match?(/```ruby\s*\n/)
+                     content.match(/```ruby\s*\n(.*?)```/m)&.captures&.first || content
+                   elsif content.match?(/```\s*\n/)
+                     content.match(/```\s*\n(.*?)```/m)&.captures&.first || content
+                   else
+                     content
+                   end
+            "#{code.strip}\n"
           end
         end
       end
