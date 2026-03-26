@@ -130,9 +130,24 @@ module Legion
           end
 
           def allowed_stub_path?(file_path)
-            allowed_root = ::File.expand_path(output_dir)
-            resolved     = ::File.expand_path(file_path)
-            resolved.start_with?("#{allowed_root}/") && file_path.end_with?('.rb')
+            return false unless file_path&.end_with?('.rb')
+
+            begin
+              allowed_root = ::File.realpath(output_dir)
+            rescue Errno::ENOENT, Errno::EACCES
+              allowed_root = ::File.expand_path(output_dir)
+            end
+
+            begin
+              # Disallow direct symlink files to avoid exfiltrating arbitrary targets
+              return false if ::File.lstat(file_path).symlink?
+
+              resolved = ::File.realpath(file_path)
+            rescue Errno::ENOENT, Errno::EACCES
+              return false
+            end
+
+            resolved == allowed_root || resolved.start_with?(allowed_root + ::File::SEPARATOR)
           end
 
           def build_runner_prompt(gap)
