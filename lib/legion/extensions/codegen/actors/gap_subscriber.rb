@@ -12,7 +12,7 @@ module Legion
 
             ingest_gap_to_apollo(gap)
             corroboration_count = query_corroboration(gap)
-            gap = boost_priority(gap, corroboration_count) if corroboration_count.positive?
+            gap = boost_priority(gap, corroboration_count) if corroboration_count >= min_agents
 
             result = Runners::FromGap.generate(gap: gap)
 
@@ -20,7 +20,7 @@ module Legion
 
             result
           rescue StandardError => e
-            Legion::Logging.warn("GapSubscriber failed: #{e.message}") if defined?(Legion::Logging)
+            log&.warn("GapSubscriber failed: #{e.message}")
             { success: false, error: e.message }
           end
 
@@ -47,7 +47,7 @@ module Legion
               source:  { provider: node_name, channel: 'gap_detector' }
             )
           rescue StandardError => e
-            Legion::Logging.debug("GapSubscriber: Apollo ingest failed: #{e.message}") if defined?(Legion::Logging)
+            log&.debug("GapSubscriber: Apollo ingest failed: #{e.message}")
           end
 
           def query_corroboration(gap)
@@ -62,7 +62,7 @@ module Legion
             results = result[:results] || []
             results.map { |r| r.dig(:source, :provider) }.compact.uniq.size
           rescue StandardError => e
-            Legion::Logging.debug("GapSubscriber: Apollo query failed: #{e.message}") if defined?(Legion::Logging)
+            log&.debug("GapSubscriber: Apollo query failed: #{e.message}")
             0
           end
 
@@ -85,6 +85,14 @@ module Legion
             Legion::Settings.dig(:codegen, :self_generate, :corroboration, :apollo_query_before_generate) != false
           end
 
+          def min_agents
+            if defined?(Legion::Settings)
+              Legion::Settings.dig(:codegen, :self_generate, :corroboration, :min_agents) || 2
+            else
+              2
+            end
+          end
+
           def priority_boost_per_agent
             if defined?(Legion::Settings)
               Legion::Settings.dig(:codegen, :self_generate, :corroboration, :priority_boost_per_agent) || 0.15
@@ -95,6 +103,12 @@ module Legion
 
           def node_name
             defined?(Legion::Settings) ? (Legion::Settings.dig(:node, :name) || 'unknown') : 'unknown'
+          end
+
+          def log
+            return unless defined?(Legion::Logging)
+
+            Legion::Logging
           end
         end
       end
