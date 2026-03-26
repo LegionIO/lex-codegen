@@ -100,6 +100,27 @@ RSpec.describe Legion::Extensions::Codegen::Runners::FromGap do
       end
     end
 
+    context 'when file path is outside the allowed output directory' do
+      before do
+        stub_const('Legion::LLM', Module.new do
+          def self.chat(**) = nil
+          def self.respond_to?(mth, *) = mth == :chat ? true : super
+        end)
+      end
+
+      it 'returns path_not_allowed' do
+        result = described_class.implement_stub(file_path: '/etc/passwd', context: context)
+        expect(result[:success]).to be false
+        expect(result[:reason]).to eq(:path_not_allowed)
+      end
+
+      it 'rejects traversal attempts' do
+        result = described_class.implement_stub(file_path: '/tmp/../etc/hosts', context: context)
+        expect(result[:success]).to be false
+        expect(result[:reason]).to eq(:path_not_allowed)
+      end
+    end
+
     context 'when LLM is available' do
       let(:generated_code) { "# frozen_string_literal: true\n\nmodule Example\n  def run = { success: true }\nend\n" }
       let(:llm_response) { double('response', content: generated_code) }
@@ -110,6 +131,7 @@ RSpec.describe Legion::Extensions::Codegen::Runners::FromGap do
           def self.respond_to?(mth, *) = mth == :chat ? true : super
         end)
         allow(Legion::LLM).to receive(:chat).and_return(llm_response)
+        allow(described_class).to receive(:allowed_stub_path?).and_return(true)
       end
 
       it 'returns success with generated code' do
@@ -176,6 +198,7 @@ RSpec.describe Legion::Extensions::Codegen::Runners::FromGap do
           def self.chat(**) = nil
           def self.respond_to?(mth, *) = mth == :chat ? true : super
         end)
+        allow(described_class).to receive(:allowed_stub_path?).and_return(true)
       end
 
       it 'returns generation_error' do

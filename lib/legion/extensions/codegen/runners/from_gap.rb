@@ -102,6 +102,7 @@ module Legion
 
           def implement_stub(file_path:, context:)
             return { success: false, reason: :llm_unavailable } unless llm_available?
+            return { success: false, reason: :path_not_allowed } unless allowed_stub_path?(file_path)
 
             stub_content = ::File.read(file_path)
             prompt = stub_implementation_prompt(stub_content, context)
@@ -126,6 +127,12 @@ module Legion
 
           def llm_available?
             defined?(Legion::LLM) && Legion::LLM.respond_to?(:chat)
+          end
+
+          def allowed_stub_path?(file_path)
+            allowed_root = ::File.expand_path(output_dir)
+            resolved     = ::File.expand_path(file_path)
+            resolved.start_with?("#{allowed_root}/") && file_path.end_with?('.rb')
           end
 
           def build_runner_prompt(gap)

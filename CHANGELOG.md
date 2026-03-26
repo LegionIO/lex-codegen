@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.4] - 2026-03-26
+
+### Security
+- `implement_stub`: added `allowed_stub_path?` guard to constrain `file_path` to the configured output directory, preventing LLM exfiltration of arbitrary local files
+
 ## [0.2.3] - 2026-03-26
 
 ### Fixed
