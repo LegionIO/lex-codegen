@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+return unless defined?(Legion::Extensions::Actors::Subscription)
+
 module Legion
   module Extensions
     module Codegen
       module Actor
-        module GapSubscriber
+        class GapSubscriber < Legion::Extensions::Actors::Subscription
           QUEUE = Transport::Queues::GapDetected if defined?(Transport::Queues::GapDetected)
 
           def action(payload)

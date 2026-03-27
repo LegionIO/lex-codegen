@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.6] - 2026-03-27
+
+### Fixed
+- Actors: `GapSubscriber` and `ReviewSubscriber` changed from modules to classes inheriting `Actors::Subscription`
+- Actor files guarded with `return unless defined?` for standalone spec compatibility
+
 ## [0.2.5] - 2026-03-26
 
 ### Changed
