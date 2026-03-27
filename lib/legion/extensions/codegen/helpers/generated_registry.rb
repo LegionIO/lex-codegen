@@ -111,7 +111,8 @@ module Legion
 
           def db_available?
             defined?(Legion::Data::Local) && Legion::Data::Local.respond_to?(:db) && !Legion::Data::Local.db.nil?
-          rescue StandardError
+          rescue StandardError => e
+            log.debug("db_available? check failed: #{e.message}")
             false
           end
 

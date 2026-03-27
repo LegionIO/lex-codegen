@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.10] - 2026-03-27
+
+### Fixed
+- Capture exception in `GeneratedRegistry#db_available?` rescue block (`rescue StandardError => e`) and log debug message to satisfy CI Rescue Logging lint
+
 ## [0.2.9] - 2026-03-27
 
 ### Fixed
