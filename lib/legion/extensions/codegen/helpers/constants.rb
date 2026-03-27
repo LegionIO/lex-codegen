@@ -252,7 +252,7 @@ module Legion
             <% methods.each do |m| -%>
 
                       def <%= m[:name] %>(<%= m[:params].join(', ') %><%= m[:params].empty? ? '**' : ', **' %>)
-                        Legion::Logging.debug "[<%= gem_name_underscored %>] <%= m[:name] %> called"
+                        log.debug "[<%= gem_name_underscored %>] <%= m[:name] %> called"
                         { success: true }
                       end
             <% end -%>

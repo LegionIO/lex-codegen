@@ -32,7 +32,7 @@ module Legion
             files = build_scaffold_files(engine, variables, helpers, runner_methods, spec_gen, module_name, underscored, runner_names)
             writer.write_all(files)
 
-            Legion::Logging.info "[codegen] scaffolded #{gem_name} with #{files.size} files at #{ext_path}"
+            log.info "[codegen] scaffolded #{gem_name} with #{files.size} files at #{ext_path}"
             { success: true, path: ext_path, files_created: files.size, name: gem_name }
           rescue ArgumentError => e
             { success: false, error: e.message }
@@ -49,6 +49,14 @@ module Legion
           end
 
           private
+
+          def log
+            return Legion::Logging if defined?(Legion::Logging)
+
+            @log ||= Object.new.tap do |nl|
+              %i[debug info warn error fatal].each { |m| nl.define_singleton_method(m) { |*| nil } }
+            end
+          end
 
           def build_variables(gem_name:, underscored:, module_name:, description:, helpers:, runner_names:, extra_deps:)
             {

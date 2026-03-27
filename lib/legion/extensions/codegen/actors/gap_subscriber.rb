@@ -25,7 +25,7 @@ module Legion
 
             result
           rescue StandardError => e
-            Legion::Logging.warn("GapSubscriber failed: #{e.message}") if defined?(Legion::Logging)
+            log.warn("GapSubscriber failed: #{e.message}")
             { success: false, error: e.message }
           end
 
@@ -52,7 +52,7 @@ module Legion
               source:  { provider: node_name, channel: 'gap_detector' }
             )
           rescue StandardError => e
-            Legion::Logging.debug("GapSubscriber: Apollo ingest failed: #{e.message}") if defined?(Legion::Logging)
+            log.debug("GapSubscriber: Apollo ingest failed: #{e.message}")
           end
 
           def query_corroboration(gap)
@@ -67,7 +67,7 @@ module Legion
             results = result[:results] || []
             results.map { |r| r.dig(:source, :provider) }.compact.uniq.size
           rescue StandardError => e
-            Legion::Logging.debug("GapSubscriber: Apollo query failed: #{e.message}") if defined?(Legion::Logging)
+            log.debug("GapSubscriber: Apollo query failed: #{e.message}")
             0
           end
 
@@ -111,9 +111,11 @@ module Legion
           end
 
           def log
-            return unless defined?(Legion::Logging)
+            return Legion::Logging if defined?(Legion::Logging)
 
-            Legion::Logging
+            @log ||= Object.new.tap do |nl|
+              %i[debug info warn error fatal].each { |m| nl.define_singleton_method(m) { |*| nil } }
+            end
           end
         end
       end

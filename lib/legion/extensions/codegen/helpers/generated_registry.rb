@@ -86,7 +86,7 @@ module Legion
                 Kernel.load(record[:file_path])
                 loaded += 1
               rescue StandardError => e
-                Legion::Logging.warn("GeneratedRegistry: failed to load #{record[:file_path]}: #{e.message}") if defined?(Legion::Logging)
+                log.warn("GeneratedRegistry: failed to load #{record[:file_path]}: #{e.message}")
               end
             end
 
@@ -99,6 +99,14 @@ module Legion
 
           def store
             @store ||= {}
+          end
+
+          def log
+            return Legion::Logging if defined?(Legion::Logging)
+
+            @log ||= Object.new.tap do |nl|
+              %i[debug info warn error fatal].each { |m| nl.define_singleton_method(m) { |*| nil } }
+            end
           end
 
           def db_available?

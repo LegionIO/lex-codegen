@@ -23,16 +23,18 @@ module Legion
 
             Runners::ReviewHandler.handle_verdict(review: review)
           rescue StandardError => e
-            Legion::Logging.warn("ReviewSubscriber failed: #{e.message}") if defined?(Legion::Logging)
+            log.warn("ReviewSubscriber failed: #{e.message}")
             { success: false, error: e.message }
           end
 
           private
 
           def log
-            return unless defined?(Legion::Logging)
+            return Legion::Logging if defined?(Legion::Logging)
 
-            Legion::Logging
+            @log ||= Object.new.tap do |nl|
+              %i[debug info warn error fatal].each { |m| nl.define_singleton_method(m) { |*| nil } }
+            end
           end
         end
       end

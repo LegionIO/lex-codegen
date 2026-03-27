@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.9] - 2026-03-27
+
+### Fixed
+- Replace all `Legion::Logging.*` direct calls with `log.*` helper calls across actors, runners, and helpers to satisfy CI Helper Migration lint check
+- Fix `log` method in actors to return a null logger fallback instead of `nil` when `Legion::Logging` is undefined, so `log.warn` never raises `NoMethodError`
+- Add private `log` method to `Runners::Generate`, `Runners::ReviewHandler`, and `Helpers::GeneratedRegistry` (all `extend self` / `module_function` modules)
+- Update `RUNNER_TEMPLATE` in `Helpers::Constants` to use `log.debug` instead of `Legion::Logging.debug` in generated runner stubs
+
 ## [0.2.8] - 2026-03-27
 
 ### Fixed

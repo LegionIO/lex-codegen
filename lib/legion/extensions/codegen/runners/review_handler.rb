@@ -28,6 +28,14 @@ module Legion
 
           private
 
+          def log
+            return Legion::Logging if defined?(Legion::Logging)
+
+            @log ||= Object.new.tap do |nl|
+              %i[debug info warn error fatal].each { |m| nl.define_singleton_method(m) { |*| nil } }
+            end
+          end
+
           def approve(record, review)
             Helpers::GeneratedRegistry.update_status(id: record[:id], status: 'approved')
 
@@ -35,7 +43,7 @@ module Legion
               begin
                 Kernel.load(record[:file_path])
               rescue StandardError => e
-                Legion::Logging.warn("ReviewHandler: load failed: #{e.message}") if defined?(Legion::Logging)
+                log.warn("ReviewHandler: load failed: #{e.message}")
               end
             end
 
