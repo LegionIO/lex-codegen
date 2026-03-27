@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.8] - 2026-03-27
+
+### Fixed
+- GapSubscriber and ReviewSubscriber: replace `log&.warn`/`log&.debug` in rescue blocks with `Legion::Logging.warn`/`Legion::Logging.debug` so the CI rescue-logging lint script matches the pattern correctly
+
 ## [0.2.7] - 2026-03-27
 
 ### Fixed
