@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+return unless defined?(Legion::Extensions::Actors::Subscription)
+
 module Legion
   module Extensions
     module Codegen
       module Actor
-        module ReviewSubscriber
+        class ReviewSubscriber < Legion::Extensions::Actors::Subscription
           QUEUE = Transport::Queues::ReviewCompleted if defined?(Transport::Queues::ReviewCompleted)
 
           def action(payload)
