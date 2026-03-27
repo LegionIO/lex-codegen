@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.7] - 2026-03-27
+
+### Fixed
+- GapSubscriber and ReviewSubscriber: added `runner_class` and `runner_function` overrides so `Subscription#prepare` can resolve the runner constant
+
 ## [0.2.6] - 2026-03-27
 
 ### Fixed

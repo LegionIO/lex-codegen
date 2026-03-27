@@ -9,6 +9,9 @@ module Legion
         class GapSubscriber < Legion::Extensions::Actors::Subscription
           QUEUE = Transport::Queues::GapDetected if defined?(Transport::Queues::GapDetected)
 
+          def runner_class = self.class
+          def runner_function = 'action'
+
           def action(payload)
             gap = normalize_gap(payload)
 

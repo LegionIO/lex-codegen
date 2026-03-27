@@ -9,6 +9,9 @@ module Legion
         class ReviewSubscriber < Legion::Extensions::Actors::Subscription
           QUEUE = Transport::Queues::ReviewCompleted if defined?(Transport::Queues::ReviewCompleted)
 
+          def runner_class = self.class
+          def runner_function = 'action'
+
           def action(payload)
             review = {
               generation_id: payload[:generation_id],
