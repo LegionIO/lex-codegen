@@ -21,6 +21,7 @@ module Legion
 
             result = Runners::FromGap.generate(gap: gap)
 
+            Helpers::GeneratedRegistry.persist(generation: result.merge(id: result[:generation_id])) if result[:success]
             Transport::Messages::CodeReviewRequested.new(generation: result).publish if result[:success] && defined?(Transport::Messages::CodeReviewRequested)
 
             result
@@ -59,12 +60,12 @@ module Legion
             return 0 unless defined?(Legion::Apollo) && corroboration_enabled? && query_before_generate?
 
             result = Legion::Apollo.retrieve(
-              query: "capability_gap: #{gap[:intent]}",
+              text:  "capability_gap: #{gap[:intent]}",
               scope: :global,
               limit: 10
             )
 
-            results = result[:results] || []
+            results = result[:entries] || result[:results] || []
             results.map { |r| r.dig(:source, :provider) }.compact.uniq.size
           rescue StandardError => e
             log.debug("GapSubscriber: Apollo query failed: #{e.message}")

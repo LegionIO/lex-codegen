@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.11] - 2026-03-29
+
+### Fixed
+- `Actor::GapSubscriber#action`: persist generated result to `Helpers::GeneratedRegistry` after successful `FromGap.generate` call, mapping `generation_id` to the `:id` key expected by `persist`
+- `Actor::GapSubscriber#query_corroboration`: use correct `text:` kwarg (not `query:`) in `Legion::Apollo.retrieve` call; handle both `entries:` and `results:` response keys for compatibility with all Apollo routing modes
+
 ## [0.2.10] - 2026-03-27
 
 ### Fixed
