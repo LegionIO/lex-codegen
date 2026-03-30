@@ -47,12 +47,10 @@ module Legion
           def ingest_gap_to_apollo(gap)
             return unless defined?(Legion::Apollo) && corroboration_enabled?
 
-            Legion::Apollo.ingest(
-              content: "capability_gap: #{gap[:intent]} (type: #{gap[:type]})",
-              tags:    [:capability_gap, gap[:type], :self_generate],
-              scope:   :global,
-              source:  { provider: node_name, channel: 'gap_detector' }
-            )
+            ingest_knowledge(content: "capability_gap: #{gap[:intent]} (type: #{gap[:type]})",
+                             tags:    [:capability_gap, gap[:type], :self_generate],
+                             scope:   :global,
+                             source:  { provider: node_name, channel: 'gap_detector' })
           rescue StandardError => e
             log.debug("GapSubscriber: Apollo ingest failed: #{e.message}")
           end
@@ -67,7 +65,7 @@ module Legion
             )
 
             results = result[:entries] || result[:results] || []
-            results.map { |r| r.dig(:source, :provider) }.compact.uniq.size
+            results.filter_map { |r| r.dig(:source, :provider) }.uniq.size
           rescue StandardError => e
             log.debug("GapSubscriber: Apollo query failed: #{e.message}")
             0

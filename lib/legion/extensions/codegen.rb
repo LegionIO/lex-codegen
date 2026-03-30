@@ -30,7 +30,7 @@ require_relative 'codegen/actors/review_subscriber'
 module Legion
   module Extensions
     module Codegen
-      extend Legion::Extensions::Core if Legion::Extensions.const_defined? :Core
+      extend Legion::Extensions::Core if Legion::Extensions.const_defined? :Core, false
 
       def self.remote_invocable?
         false
