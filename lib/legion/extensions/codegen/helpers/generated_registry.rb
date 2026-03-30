@@ -94,17 +94,17 @@ module Legion
           end
 
           def reset!
-            @store = {}
+            @store = {} # rubocop:disable ThreadSafety/ClassInstanceVariable
           end
 
           def store
-            @store ||= {}
+            @store ||= {} # rubocop:disable ThreadSafety/ClassInstanceVariable
           end
 
           def log
             return Legion::Logging if defined?(Legion::Logging)
 
-            @log ||= Object.new.tap do |nl|
+            @log ||= Object.new.tap do |nl| # rubocop:disable ThreadSafety/ClassInstanceVariable
               %i[debug info warn error fatal].each { |m| nl.define_singleton_method(m) { |*| nil } }
             end
           end

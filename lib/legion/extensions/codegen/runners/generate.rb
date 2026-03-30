@@ -12,7 +12,7 @@ module Legion
             base_path ||= ::Dir.pwd
             ext_path   = ::File.join(base_path, "lex-#{name}")
             gem_name   = "lex-#{name}"
-            underscored = name.to_s.gsub('-', '_')
+            underscored = name.to_s.tr('-', '_')
             runner_names = runner_methods.map { |r| r[:name] }
 
             engine  = Helpers::TemplateEngine.new

@@ -50,7 +50,7 @@ module Legion
             generation_id = "gen_#{SecureRandom.hex(8)}"
             prompt = build_runner_prompt(gap)
 
-            response = Legion::LLM.chat(
+            response = Legion::LLM.chat( # rubocop:disable Legion/HelperMigration/DirectLlm
               messages: [{ role: 'user', content: prompt }],
               caller:   { source: 'lex-codegen', component: 'from_gap', operation: 'generate_runner_method' }
             )
@@ -111,7 +111,7 @@ module Legion
             stub_content = ::File.read(file_path)
             prompt = stub_implementation_prompt(stub_content, context)
 
-            response = Legion::LLM.chat(
+            response = Legion::LLM.chat( # rubocop:disable Legion/HelperMigration/DirectLlm
               messages: [
                 { role: 'system', content: STUB_IMPLEMENTATION_INSTRUCTIONS },
                 { role: 'user', content: prompt }

@@ -14,7 +14,7 @@ module Legion
 
             spec = begin
               Gem::Specification.find_by_name(gem_name)
-            rescue LoadError
+            rescue LoadError => _e
               nil
             end
             return { success: false, reason: :gem_not_found } unless spec
@@ -24,7 +24,7 @@ module Legion
 
             source = ::File.read(source_file)
             prompt = build_fix_prompt(source, error_class, backtraces)
-            fix_response = Legion::LLM.chat(
+            fix_response = Legion::LLM.chat( # rubocop:disable Legion/HelperMigration/DirectLlm
               messages: [{ role: 'user', content: prompt }],
               caller:   { extension: 'lex-codegen', operation: 'auto_fix' },
               intent:   { capability: :reasoning }
@@ -58,11 +58,11 @@ module Legion
           def list_fixes(status: nil, **)
             return { fixes: [], count: 0 } unless defined?(Legion::Data::Local)
 
-            ds = Legion::Data::Local.connection[:codegen_fixes]
+            ds = Legion::Data::Local.connection[:codegen_fixes] # rubocop:disable Legion/HelperMigration/DirectData
             ds = ds.where(status: status) if status
             fixes = ds.order(Sequel.desc(:created_at)).limit(50).all
             { fixes: fixes, count: fixes.size }
-          rescue StandardError
+          rescue StandardError => _e
             { fixes: [], count: 0 }
           end
 
@@ -137,23 +137,23 @@ module Legion
           def save_fix(gem_name:, branch:, patch:, specs_passed:, runner_class: nil, spec_output: nil)
             fix_id = SecureRandom.uuid
             if defined?(Legion::Data::Local)
-              Legion::Data::Local.connection[:codegen_fixes].insert(
+              local_data_connection[:codegen_fixes].insert(
                 fix_id: fix_id, gem_name: gem_name, runner_class: runner_class,
                 branch: branch, patch: patch, status: 'pending',
                 specs_passed: specs_passed, spec_output: spec_output&.slice(0, 10_240)
               )
             end
             fix_id
-          rescue StandardError
+          rescue StandardError => _e
             fix_id
           end
 
           def update_fix_status(fix_id, new_status)
             return { success: false, reason: :data_unavailable } unless defined?(Legion::Data::Local)
 
-            updated = Legion::Data::Local.connection[:codegen_fixes]
-                                         .where(fix_id: fix_id)
-                                         .update(status: new_status)
+            updated = local_data_connection[:codegen_fixes]
+                      .where(fix_id: fix_id)
+                      .update(status: new_status)
             if updated.positive?
               { success: true, fix_id: fix_id, status: new_status }
             else
