@@ -28,7 +28,7 @@ module Legion
             - Do not add new comments unless the logic is non-obvious; keep existing comments (including `# frozen_string_literal: true` on line 1)
           INSTRUCTIONS
 
-          def generate(gap:)
+          def generate(gap:, **)
             tier = Helpers::TierClassifier.classify(gap: gap)
 
             case tier

@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.12] - 2026-03-29
+
+### Changed
+- `Runners::FromGap.generate` accepts `**` to absorb extra task payload keys for task system compatibility
+- `Actor::GapSubscriber` and `Actor::ReviewSubscriber` enable `check_subtask?` for workflow chain integration
+
 ## [0.2.11] - 2026-03-29
 
 ### Fixed
